@@ -49,6 +49,12 @@ pytest tests/test_auth.py
 
 Este proyecto sigue las buenas prácticas de OWASP y PEP8. El código es verificado con Bandit para seguridad y Flake8 para estilo.
 
+### Verificaciones realizadas
+
+| Fecha      | Herramientas | Resultado | Observaciones |
+|------------|--------------|-----------|---------------|
+| 23/05/2025 | Bandit, Flake8 | Exitoso  | No se encontraron problemas de seguridad ni estilo en el código. Proyecto cumple con estándares OWASP y PEP8. |
+
 ### Ejecutar verificaciones
 
 ```bash
