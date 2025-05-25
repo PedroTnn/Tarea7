@@ -224,28 +224,27 @@
         loginButton.addEventListener('click', async () => {
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
-            
+
             if (!username || !password) {
                 showMessage(loginMessage, "Por favor completa todos los campos", false);
                 return;
             }
-            
+
             try {
                 const response = await fetch('/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
                 });
-                
+
                 const data = await response.json();
-                
-                if (response.ok) {
+
+                if (response.ok && data.success) {
                     // Reiniciar contador de intentos
                     loginAttempts = 0;
                     attemptsCounter.classList.add('hidden');
-                    
-                    showMessage(loginMessage, "¡Inicio de sesión exitoso!", true);
-                    
+                    // Mostrar el mensaje real del backend si existe
+                    showMessage(loginMessage, data.message || "¡Inicio de sesión exitoso!", true);
                     // Aquí podrías redirigir al usuario a otra página o mostrar contenido protegido
                 } else {
                     // Si es un error de credenciales inválidas, incrementar contador
@@ -254,13 +253,14 @@
                         attemptsCounter.textContent = `Intento fallido ${loginAttempts} de 5`;
                         attemptsCounter.classList.remove('hidden');
                     }
-                    
                     // Si está bloqueado, mostrar mensaje especial
-                    if (response.status === 403 && data.detail.includes('bloqueado')) {
+                    if (response.status === 403 && data.detail && data.detail.includes('bloqueado')) {
                         showMessage(loginMessage, "Tu cuenta ha sido bloqueada temporalmente por seguridad. Por favor, intenta nuevamente en 15 minutos.", false);
                         attemptsCounter.textContent = "Cuenta bloqueada";
                     } else {
-                        showMessage(loginMessage, `Error: ${data.detail}`, false);
+                        // Mostrar el mensaje de error real si existe, si no, mensaje genérico
+                        const errorMsg = data.detail || data.message || 'Error desconocido';
+                        showMessage(loginMessage, `Error: ${errorMsg}`, false);
                     }
                 }
             } catch (error) {

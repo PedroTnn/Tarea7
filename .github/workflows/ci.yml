@@ -1,0 +1,59 @@
+name: Auth Service CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  quality-assurance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Security analysis with Bandit
+        run: |
+          bandit -r app/ -c bandit.yml -f json -o bandit-results.json
+          
+      - name: Style check with Flake8
+        run: |
+          flake8 app/ --statistics --format=json --output-file=flake8-results.json
+          
+      - name: Run unit tests with coverage
+        run: pytest --cov=app --junitxml=test-results.xml
+      - name: Integration test: Register and login
+        run: |
+          echo "from app.auth import AuthService, users_db; u='ciuser'; p='C1pass!word'; AuthService.register_user(u, p); assert u in users_db; r=AuthService.login(u, p); assert r['user']['username']==u" | python
+          
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports
+          path: bandit-results.json
+          
+      - name: Upload style reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: style-reports
+          path: flake8-results.json
+          
+      - name: Upload test reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: test-results.xml
+          
+      - name: Generate quality dashboard
+        run: |
+          echo "Generando dashboard de calidad basado en los resultados de los análisis"
+          # Aquí iría el script para generar un dashboard con los resultados

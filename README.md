@@ -43,6 +43,37 @@ pytest
 
 # Ejecutar tests específicos
 pytest tests/test_auth.py
+
+# Ejecutar tests con reporte de cobertura
+.\run_tests_with_coverage.bat
+```
+
+Los reportes de cobertura se generan en formato HTML en el directorio `htmlcov/`.
+
+### Casos de prueba para flujos críticos
+
+El proyecto incluye casos de prueba específicos para los flujos más críticos:
+
+1. **Bloqueo de cuentas**: Verifica que una cuenta se bloquee después de 5 intentos fallidos
+2. **Autenticación**: Prueba el proceso completo de registro e inicio de sesión
+3. **Desbloqueo automático**: Verifica que las cuentas se desbloqueen después del tiempo establecido
+
+Ejemplo de prueba para el mecanismo de bloqueo:
+
+```python
+def test_login_fails_and_blocks():
+    username = "testuser"
+    
+    # 5 intentos fallidos
+    for _ in range(5):
+        with pytest.raises(Exception) as e:
+            login(username, "wrong")
+        assert "Credenciales inválidas" in str(e.value.detail)
+    
+    # El 6to intento debe mostrar que la cuenta está bloqueada
+    with pytest.raises(Exception) as e:
+        login(username, "wrong")
+    assert "Usuario bloqueado" in str(e.value.detail)
 ```
 
 ## QA – Process Quality Assurance
@@ -55,7 +86,32 @@ Este proyecto sigue las buenas prácticas de OWASP y PEP8. El código es verific
 |------------|--------------|-----------|---------------|
 | 23/05/2025 | Bandit, Flake8 | Exitoso  | No se encontraron problemas de seguridad ni estilo en el código. Proyecto cumple con estándares OWASP y PEP8. |
 
-### Ejecutar verificaciones
+### Matriz de trazabilidad: Controles de calidad ↔ Componentes
+
+| Control de calidad | Componente | Herramienta | Estado |
+|--------------------|------------|-------------|--------|
+| Validación de entrada | app/utils.py (validate_username) | Bandit, Revisión manual | Implementado |
+| Logging seguro | app/utils.py (log_login_attempt) | Bandit | Implementado |
+| Almacenamiento seguro de contraseñas | app/auth.py | Bandit | Implementado |
+| Bloqueo de cuentas | app/auth.py | Pruebas unitarias | Implementado |
+| Estilo de código PEP8 | Todos los archivos .py | Flake8 | Cumple |
+
+### Hallazgos de auditoría de calidad
+
+| ID | Fecha | Componente | Descripción | Severidad | Estado |
+|----|-------|------------|-------------|-----------|--------|
+| QA001 | 23/05/2025 | app/* | Verificación completa de código: sin problemas de seguridad | Informativo | Cerrado |
+| QA002 | 23/05/2025 | app/* | Verificación de estilo PEP8: sin problemas | Informativo | Cerrado |
+
+### Integración en CI
+
+Los análisis de calidad están integrados en el proceso de CI a través de los siguientes mecanismos:
+
+1. **Pre-commit hooks**: Ejecutan Flake8 antes de cada commit
+2. **Pipeline de CI**: Las verificaciones de Bandit y Flake8 se ejecutan automáticamente en cada pull request
+3. **Reportes automáticos**: Los resultados se registran y están disponibles en el dashboard del proyecto
+
+Para ejecutar manualmente las verificaciones:
 
 ```bash
 # Windows

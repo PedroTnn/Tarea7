@@ -1,0 +1,45 @@
+Run started:2025-05-25 03:43:39.554973
+
+Test results:
+>> Issue: [B105:hardcoded_password_string] Possible hardcoded password: '09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7'
+   Severity: Low   Confidence: Medium
+   CWE: CWE-259 (https://cwe.mitre.org/data/definitions/259.html)
+   More Info: https://bandit.readthedocs.io/en/1.7.5/plugins/b105_hardcoded_password_string.html
+   Location: app/jwt.py:13:13
+12	# En un entorno de producción, estos valores deberían estar en variables de entorno
+13	SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"  # Clave secreta para firmar tokens
+14	ALGORITHM = "HS256"
+
+--------------------------------------------------
+>> Issue: [B107:hardcoded_password_default] Possible hardcoded password: 'bearer'
+   Severity: Low   Confidence: Medium
+   CWE: CWE-259 (https://cwe.mitre.org/data/definitions/259.html)
+   More Info: https://bandit.readthedocs.io/en/1.7.5/plugins/b107_hardcoded_password_default.html
+   Location: app/models.py:124:0
+123	
+124	def create_token_response(access_token, token_type="bearer"):
+125	    return {
+126	        "access_token": access_token,
+127	        "token_type": token_type
+128	    }
+129	
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 793
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 2
+		Medium: 0
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 0
+		Medium: 2
+		High: 0
+Files skipped (0):
